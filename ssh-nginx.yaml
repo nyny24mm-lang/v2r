@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssh-nginx
+  template:
+    metadata:
+      labels:
+        app: ssh-nginx
+    spec:
+      containers:
+      - name: ssh-nginx
+        image: nynyjk/sshws:v1
+        ports:
+        - containerPort: 8080   # Nginx WS port
+        - containerPort: 2222   # SSH port (if you want to expose it directly, usually proxied via nginx)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssh-nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ssh-nginx
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
